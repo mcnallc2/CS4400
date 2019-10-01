@@ -1,0 +1,38 @@
+<!-- development version, includes helpful console warnings -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<div id="app">
+    <p>Enter a city below!</p>
+    <input v-model="message">
+    <p>Checking weather in: {{ message }}</p>
+    <button v-on:click="checkWeather">Check Weather</button>
+    <p>Echo from server: {{ echo }}</p>
+</div>
+
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    message: '',
+    echo: ''
+  },
+  methods: {
+    checkWeather: checkWeather
+  }
+}) 
+
+function checkWeather(){
+  console.log("Asking API!")
+  let location = this.message
+  url = "http://localhost:3000/weather/" + location; 
+  console.log(url);
+  
+  let prom = fetch(url)
+  prom.then(response => response.json() )
+  .then(response => {
+    this.echo = response.result }
+  )
+  .catch(function(error){
+    console.log(error);
+  })
+}       
+</script>
