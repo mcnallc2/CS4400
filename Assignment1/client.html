@@ -1,10 +1,10 @@
 <!-- development version, includes helpful console warnings -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <div id="app">
-    <p>Check the city forcast below!</p>
+    <h1>Check your city's forcast below!</h1>
     <input v-model="message"placeholder="Enter City">
     <button v-on:click="checkWeather">Check Weather</button>
-    <p>Checking weather in: {{ city }} {{ country }}</p>
+    <p><font size="5">Checking weather in: <b>{{ city }} {{ country }}</b></font></p>
     <pre>{{ weather }}</pre>
 </div>
 
@@ -42,7 +42,8 @@ function checkWeather(){
     console.log('Error retrieving weather info!');
     this.city = ('Invalid Entry');
     this.country = ('');
-  })
+    this.weather = ('')}
+  )
 }   
 
 function parseJson(info){
@@ -52,40 +53,43 @@ function parseJson(info){
   let wind = new Array(0,0,0,0,0)
   let rain = new Array(0,0,0,0,0)
   dayNumber = 0
-  prev_day = info.list[0].dt_txt.substr(8, 2)
   temperature = 0
   packing = 0
+
+  prev_day = info.list[0].dt_txt.substr(8, 2)
 
   fiveDay = "|-------------------------------|\n"
   for(let i = 0; i < (info.list.length); i++){
 
-      curr_day = info.list[i].dt_txt.substr(8, 2)
-      if(curr_day != prev_day){
-          fiveDay = fiveDay + "|Date:\t\t" + info.list[i-1].dt_txt.substr(0, 10) + "\t|\n"
-          fiveDay = fiveDay + "|Temp(C):\t" + ((temp[dayNumber]/readings[dayNumber]) - 273.15).toFixed(2) + "\t\t|\n"
-          fiveDay = fiveDay + "|Wind(m/hr):\t" + (wind[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
-          fiveDay = fiveDay + "|Rainfall(mm):\t" + (rain[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
-          fiveDay = fiveDay + "|-------------------------------|\n"
-          temperature = temperature + ((temp[dayNumber]/readings[dayNumber]) - 273.15)
-          if(rain[dayNumber]/readings[dayNumber] != 0){
-              packing = 1
-          }
-          dayNumber++
-          if(dayNumber > 4){
-              break;
-          }
-      }
+    curr_day = info.list[i].dt_txt.substr(8, 2)
+    if(curr_day != prev_day){
 
-      readings[dayNumber]++
-      temp[dayNumber] = temp[dayNumber] + info.list[i].main.temp
-      wind[dayNumber] = wind[dayNumber] + info.list[i].wind.speed
-      if(info.list[i].rain != undefined){
-          if((JSON.stringify(info.list[i].rain)).substr(6, 5) != ''){
-              rainfall = parseFloat((JSON.stringify(info.list[i].rain)).substr(6, 5))
-              rain[dayNumber] = rain[dayNumber] + rainfall
-          }
-      }
-      prev_day = curr_day
+        fiveDay = fiveDay + "|Date:\t\t" + info.list[i-1].dt_txt.substr(0, 10) + "\t|\n"
+        fiveDay = fiveDay + "|Temp(C):\t" + ((temp[dayNumber]/readings[dayNumber]) - 273.15).toFixed(2) + "\t\t|\n"
+        fiveDay = fiveDay + "|Wind(mph):\t" + (wind[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
+        fiveDay = fiveDay + "|Rainfall(mm):\t" + (rain[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
+        fiveDay = fiveDay + "|-------------------------------|\n"
+
+        temperature = temperature + ((temp[dayNumber]/readings[dayNumber]) - 273.15)
+        if(rain[dayNumber]/readings[dayNumber] != 0){
+            packing = 1
+        }
+        dayNumber++
+        if(dayNumber > 4){
+            break;
+        }
+    }
+
+    readings[dayNumber]++
+    temp[dayNumber] = temp[dayNumber] + info.list[i].main.temp
+    wind[dayNumber] = wind[dayNumber] + info.list[i].wind.speed
+    if(info.list[i].rain != undefined){
+        if((JSON.stringify(info.list[i].rain)).substr(6, 5) != ''){
+            rainfall = parseFloat((JSON.stringify(info.list[i].rain)).substr(6, 5))
+            rain[dayNumber] = rain[dayNumber] + rainfall
+        }
+    }
+    prev_day = curr_day
   }
 
   responseString = checkPacking(packing)
@@ -104,7 +108,7 @@ function checkPacking(packing){
 }
 
 function checkTemp(temp){
-  if(temp <= 10){
+  if(temp >= -10 && temp <= 10){
       return "Temperature to be low. Pack for cold weather!\n\n"
   }
   else if(temp > 10 && temp <= 20){
