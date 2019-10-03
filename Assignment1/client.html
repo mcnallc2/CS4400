@@ -1,11 +1,11 @@
 <!-- development version, includes helpful console warnings -->
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <div id="app">
-    <p>Enter a city below!</p>
-    <input v-model="message">
-    <p>Checking weather in: {{ message }}</p>
+    <p>Check the city forcast below!</p>
+    <input v-model="message"placeholder="Enter City">
     <button v-on:click="checkWeather">Check Weather</button>
-    <p>Echo from server: {{ echo }}</p>
+    <p>Checking weather in: {{ city }} {{ country }}</p>
+    <pre>{{ weather }}</pre>
 </div>
 
 <script>
@@ -13,7 +13,9 @@ var app = new Vue({
   el: '#app',
   data: {
     message: '',
-    echo: ''
+    city: '',
+    country: '',
+    weather: ''
   },
   methods: {
     checkWeather: checkWeather
@@ -21,18 +23,96 @@ var app = new Vue({
 }) 
 
 function checkWeather(){
-  console.log("Asking API!")
+  console.log("Contacting Server!")
   let location = this.message
   url = "http://localhost:3000/weather/" + location; 
   console.log(url);
   
   let prom = fetch(url)
-  prom.then(response => response.json() )
+  prom.then(response => response.json())
   .then(response => {
-    this.echo = response.result }
+    console.log(response)
+    console.log('Successfully retrieved weather information')
+    this.city = (response.city.name + ',')
+    this.country = response.city.country
+    this.weather = parseJson(response)}
   )
-  .catch(function(error){
+  .catch(error => {
     console.log(error);
+    console.log('Error retrieving weather info!');
+    this.city = ('Invalid Entry');
+    this.country = ('');
   })
-}       
+}   
+
+function parseJson(info){
+
+  let readings = new Array(0,0,0,0,0)
+  let temp = new Array(0,0,0,0,0)
+  let wind = new Array(0,0,0,0,0)
+  let rain = new Array(0,0,0,0,0)
+  dayNumber = 0
+  prev_day = info.list[0].dt_txt.substr(8, 2)
+  temperature = 0
+  packing = 0
+
+  fiveDay = "|-------------------------------|\n"
+  for(let i = 0; i < (info.list.length); i++){
+
+      curr_day = info.list[i].dt_txt.substr(8, 2)
+      if(curr_day != prev_day){
+          fiveDay = fiveDay + "|Date:\t\t" + info.list[i-1].dt_txt.substr(0, 10) + "\t|\n"
+          fiveDay = fiveDay + "|Temp(C):\t" + ((temp[dayNumber]/readings[dayNumber]) - 273.15).toFixed(2) + "\t\t|\n"
+          fiveDay = fiveDay + "|Wind(m/hr):\t" + (wind[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
+          fiveDay = fiveDay + "|Rainfall(mm):\t" + (rain[dayNumber]/readings[dayNumber]).toFixed(2) + "\t\t|\n"
+          fiveDay = fiveDay + "|-------------------------------|\n"
+          temperature = temperature + ((temp[dayNumber]/readings[dayNumber]) - 273.15)
+          if(rain[dayNumber]/readings[dayNumber] != 0){
+              packing = 1
+          }
+          dayNumber++
+          if(dayNumber > 4){
+              break;
+          }
+      }
+
+      readings[dayNumber]++
+      temp[dayNumber] = temp[dayNumber] + info.list[i].main.temp
+      wind[dayNumber] = wind[dayNumber] + info.list[i].wind.speed
+      if(info.list[i].rain != undefined){
+          if((JSON.stringify(info.list[i].rain)).substr(6, 5) != ''){
+              rainfall = parseFloat((JSON.stringify(info.list[i].rain)).substr(6, 5))
+              rain[dayNumber] = rain[dayNumber] + rainfall
+          }
+      }
+      prev_day = curr_day
+  }
+
+  responseString = checkPacking(packing)
+  responseString = responseString + checkTemp((temperature/5))
+  responseString = responseString + fiveDay
+  return responseString
+}
+
+function checkPacking(packing){
+  if(packing == 1){
+      return "Looks like rain. Pack your umbrella!\n"
+  }
+  else{
+      return "Lovely and dry. Leave the umbrella at home!\n"
+  }
+}
+
+function checkTemp(temp){
+  if(temp <= 10){
+      return "Temperature to be low. Pack for cold weather!\n\n"
+  }
+  else if(temp > 10 && temp <= 20){
+      return "Temperature is normal. Pack for mild weather!\n\n"
+  }
+  else{
+      return "Temperature is high. Pack for very hot weather!\n\n"
+  }
+}
+   
 </script>
