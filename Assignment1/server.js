@@ -1,13 +1,19 @@
+//  Conor McNally - 16325133
+//  Internet Applications - Assignemnt 1
+//  Server
+
 "use strict";
 const express = require('express')
 const cors = require('cors')
 const fetch = require('node-fetch')
 const app = express()
+
+//this allows my client to communicate with this server with cors enabled
 app.use(cors())
 
 const port = 3000
 app.get('/weather/:location', data)
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Server listening on port ${port}!`))
 
 function data(req, res) {
     let location = req.params.location;
