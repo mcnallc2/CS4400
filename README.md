@@ -12,3 +12,19 @@ I should then display for the user some summary information including:
 1. Packing: if there is rain anytime over the next 5-days indicate that the user should bring an umbrella
 2. Indicate whether the user should pack for Cold (temp range -10..+10), Warm (+10-+20) or Hot (20+)
 3. Give a summary table for the next 5 days showing: Temperature, Wind Speed and Rainfall level
+
+## Assignment 2
+
+The objective of this assignment is to write a very simple client (employing Vue.js) interacting with a server (implemented in Node.js) which in turn interacts with a Cloud-based Database (using AWS DynamoDB) and an Object stored in the Object-store (using AWS S3).
+
+I am writing a simple client in Vue.js which has 3 buttons:
+1.	Create Database
+2.	Query Database - with two input boxes to allow a movie name and a year to be entered
+3.	Destroy Database
+
+Clicking each of these buttons will invoke API primitives on your Cloud-based server and deal with the responses.
+‘Create’ should cause my Node.js server to make a table in a DynamoDB database – fetch the raw data from the S3 object and upload it to the newly created database. I use a small sub-set of the fields [title, release-date, rank].
+‘Query’ should cause my Node.js server to find all the movies in a given year, that begin-with the entered text string – and display them on the web-page.
+‘Destroy’ should cause the database table to be deleted.
+
+A related example: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.html
