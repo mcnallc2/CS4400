@@ -1,0 +1,66 @@
+<!-- Conor McNally - 16325133 -->
+<!-- Internet Applications - Assignment 2 -->
+<!-- Client -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<div id="app">
+    <h1>Query a movie below</h1>
+    <button v-on:click="createDB">Create DB</button>
+    <input v-model="movie"placeholder="Enter Movie Name">
+    <input v-model="year"placeholder="Enter Movie Year">
+    <button v-on:click="queryDB">Query DB</button>
+    <button v-on:click="deleteDB">Delete DB</button>
+    <h2>{{instruction}}</h2>
+    <p>{{info}}</p>
+</div>
+
+<script>
+var app = new Vue({
+    el: '#app',
+    data: {
+        movie: '',
+        year: '',
+        info: '',
+        instruction: ''
+    },
+    methods: {
+        createDB: createDB,
+        queryDB: queryDB,
+        deleteDB: deleteDB
+
+    }
+}) 
+
+function createDB(){
+    this.instruction = 'Creating DataBase';
+    sendRequest('create', 'null', 'null')
+}
+function deleteDB(){
+    this.instruction = 'Deleting DataBase';
+    sendRequest('destroy', 'null', 'null')
+}
+function queryDB(){
+    this.instruction = 'Querying DataBase';
+    sendRequest('query', this.movie, this.year)
+}
+
+function sendRequest(instruction, movieName, movieYear){
+    console.log("Contacting Server!")
+    url = "http://localhost:3000/dbinstruction/" + instruction + "/" + movieName + "/" + movieYear;
+    console.log(url);
+
+    let prom = fetch(url)
+    prom.then(response => response.json())
+        .then(response => {
+        console.log(response.alert)
+        this.info = response.alert}
+    )
+    .catch(error => {
+        console.log(error);
+        console.log('Error retrieving movie info!');
+        this.info = ('Invalid Entry')}
+    )
+}
+
+</script>
