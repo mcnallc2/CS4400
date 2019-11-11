@@ -1,0 +1,71 @@
+<!-- Conor McNally - 16325133 -->
+<!-- Internet Applications - Assignment 2 -->
+<!-- Client -->
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<div id="app"style="background-color:powderblue;">
+    <h1><font size="5"><b>Create and Populate your Movie database</b></font></h1>
+    <button v-on:click="sendRequest(0)">Create DB</button>
+    <h1><font size="5"><b>Query a Year and the beginning of a Movie name</b></font></h1>
+    <input v-model="movie"placeholder="Enter Movie Name">
+    <input v-model="year"placeholder="Enter Movie Year">
+    <button v-on:click="sendRequest(2)">Query DB</button>
+    <h1><font size="5"><b>Delete the Movie database below</b></font></h1>
+    <button v-on:click="sendRequest(1)">Delete DB</button>
+    <hr>
+    <hr>
+    <pre><font size="3"><b>{{ info }}</b></font></pre>
+</div>
+
+<script>
+var app = new Vue({
+    el: '#app',
+    data: {
+        movie: '',
+        year: '',
+        info: ''
+    },
+    methods: {
+        sendRequest: function(instruction){    
+            if(instruction == 0){
+                this.info = 'Creating and Populating Database ...'
+                instruction = 'create'
+                movieName = 'null'
+                movieYear = 'null'
+            }
+            else if(instruction == 1){
+                this.info = 'Deleting Database ...'
+                instruction = 'destroy'
+                movieName = 'null'
+                movieYear = 'null'
+            }
+            else{
+                this.info = 'Query Parameters: ' + this.movie + ' - ' + this.year + '\nQuerying Database ...';
+                instruction = 'query'
+                movieName = this.movie
+                movieYear = this.year
+            }
+
+            console.log("Contacting Server!")
+            url = "http://ec2-46-51-143-46.eu-west-1.compute.amazonaws.com:3000/dbinstruction/" + instruction + "/" + movieName + "/" + movieYear;
+            //url = "http://localhost:3000/dbinstruction/" + instruction + "/" + movieName + "/" + movieYear;
+            console.log(url);
+
+            //sending request based on instruction 
+            //response from server displayed on webpage 
+            let prom = fetch(url)
+            prom.then(response => response.json())
+            .then(response => {
+                console.log(response)
+                console.log('Successfully Recieved Response')
+                this.info = response.alert}
+            )
+            .catch(error => {
+                console.log(error);
+                console.log('Error retrieving movie info!');
+                this.info = ('Invalid Entry')}
+            )
+        }
+    }
+}) 
+</script>
